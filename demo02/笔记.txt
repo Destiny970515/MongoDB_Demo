@@ -9,13 +9,19 @@ show collections：查看当前库中的集合（表）
 db.集合名称.drop()：删除集合（表）
 db.dropDatabase()：删除数据库
 
+一次性插入多条数据
+for (var i = 1; i < 100; i++) {
+  db.admin.insert({"username": "xiaoming" + i, "age": i})
+};
 
 创建数据库
 如果真的想把这个数据库创建成功，那么必须插入一个数据。
 
 删除集合，删除指定的集合，删除表
 
+
 查询语句
+
 db.集合名称（表）.find()：查询集合（表）中的数据
 例如：db.user.find()
 db.集合名称（表）.find({字段名:值})：查询指定值的数据
@@ -56,11 +62,37 @@ db.集合名称（表）.find.skip(值)：查询 x 条以后的数据
 db.集合名称（表）.find.skip(值)：查询 x 条开始 至 x 条结束的数据
 例如：db.user.find().skip(2).limit(4)
 
+db.集合名称（表）.find().count()：查询集合（表）里总共有多少条数据
+例如：db.admin.find().count()
+
+分页算法 limit 是 pageSize，skip 是 第几页 - 1 * pageSize
+例如：db.admin.find().skip((3-1) * pageSize).limit(pageSize)
+
+db.集合名称（表）.find({$or: ["字段名": 值, "字段名": 值]})：查询包含跟字段名相关的数据
+例如：db.admin.find({$or: [{age: 22}, {name: 'xiaoming'}]})
+
+db.集合名称（表）.findOne()：查询第一条数据
+例如：db.admin.findOne()
+
+修改数据（要修改数据，就要先查询，后修改）
+
+db.集合名称（表）.update({"要修改的字段名": 值}, {$set: {"修改的字段名 或 新增字段名": 值}})：修改更新当前数据
+例如：db.user.update({"name": "xiaoming"}, {$set: {"age": 30}})
+
+如果在修改数据的时候，不使用 $set ，就会把当前数据替换掉：完全替换当前数据
+例如：db.user.update({"name": "xiaoming"}, {"name": "大明", "age": 16})
+
+db.集合名称（表）.update({"要修改的字段名": 值}, {$set: {修改的字段名 或 新增字段名: 值}}, {multi: true})：批量更新匹配到的数据
+例如：db.user.update({"name": "zhangsan"}, {$set: {age: "20"}}, {multi: true})
 
 
+删除数据
 
+db.集合名称（表）.remove({"要删除的字段名": 值})：批量删除匹配到的数据
+例如：db.user.remove({"name": "xiaofen"})
 
-
+db.集合名称（表）.remove({"要删除的字段名": 值}, {justOne: true})：只删除第一条匹配到的数据
+例如：db.user.remove({"name": "xiaofen"}, {justOne: ture})
 
 
 

@@ -1,0 +1,39 @@
+MongoDB 账户权限配置
+
+1、创建超级管理用户
+use admin
+db.createUser({
+  user: 'admin',
+  pwd: '123456'
+  roles: [{role: 'root', db: 'admin'}]
+})
+
+2、修改 MongoDB 数据库配置文件
+路径：C:\Program Files\MongoDB\Server\4.4\bin\mongod.cfg
+security: authorization: enabled（表示开启权限验证）
+3、重启 mongoDB 服务
+win + R
+services.msc
+找到 MongoDB Server 右键 重新启动
+
+4、用超级管理员账户连接数据库
+mongo admin -u 用户名 -p 密码
+
+MongoDB 数据库角色
+
+1、数据库用户角色：read、readWrite
+2、数据库管理角色：dbAdmin、dbOwner、userAdmin
+3、集群管理角色：clusterAdmin、clusterManager、clusterMonitor、hostManager
+4、备份恢复角色：backup、restore
+5、所有数据库角色：readAnyDatabase、readWriteAnyDatabase、userAdminAnyDatabase、dbAdminAnyDatabase
+6、超级用户角色：root
+
+参考链接：https://www.cnblogs.com/zzw1787044/p/5773178.html
+
+拓展指令：
+show users：查看当前库下的用户
+db.dropUser("用户名")：删除指定用户
+db.updateUser("用户名", {pwd: "用户密码"})：修改用户密码
+db.auth("用户名", "用户密码")：密码认证
+
+

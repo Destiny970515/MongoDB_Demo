@@ -1,0 +1,107 @@
+MongoDB 的 高级查询 Aggregate 聚合管道
+
+聚合管道
+使用聚合管道可以对集合中的文档进行变换和组合
+应用场景：表关联查询、数据的统计
+
+Aggregate 聚合管道操作符（常见操作符）
+
+$project：增加、删除、重命名字段
+$match：条件匹配，只满足条件的文档才能进入下一阶段
+$limit：限制结果的数量
+$skip：跳过文档的数量
+$sort：条件排序
+$group：条件组合结果
+$lookup：用以引入其它集合的数据 （表关联查询 ）
+
+管道表达式
+管道操作符作为“键”，所对应的“值”就叫做管道表达式
+例如：{$match: {status: "A"}}，$match 称为管道操作符，而 status: "A" 称为管道表达式
+每个管道表达式是一个文档结构，它是由字段名、字段值、和一些表达式操作符组成的
+
+
+$project
+作用：用于修改文档的结构，重命名、增加或删除文档中的字段
+例如：
+db.order.aggregate([
+ {$project: {trade_no: 1, all_price: 1}}
+])
+
+$match
+作用：用于过滤文档。用法类似于 find() 方法中的参数
+例如：
+db.order.aggregate([
+ {$project: {trade_no: 1, all_price: 1}},
+ {$match: {all_price: {$gte: 90}}}
+])
+
+$group
+作用：将集合中的文档进行分组，可用于统计结果。
+例如：
+db.order_item.aggregate([
+ {$group: {_id: "$order_id", total: {$sum: "$num"}}}
+])
+
+$sort
+作用：将集合中的文档进行排序。
+例如：
+db.order.aggregate([
+ {$project: {trade_no: 1, all_price: 1}},
+ {$match: {all_price: {$gte: 90}}},
+ {$sort: {all_price: 1}}
+])
+
+$limit
+作用：限制结果的数量
+例如：
+db.order.aggregate([
+ {$project: {trade_no: 1, all_price: 1}},
+ {$match: {all_price: {$gte: 90}}},
+ {$sort: {all_price: 1}},
+ {$limit: 1}
+])
+
+$skip
+作用：跳过文档的数量
+例如：
+db.order.aggregate([
+ {$project: {trade_no: 1, all_price: 1}},
+ {$match: {all_price: {$gte: 90}}},
+ {$sort: {all_price: 1}},
+ {$limit: 10},
+ {$skip: 1}
+])
+
+$lookup
+作用：表关联查询 (from: 要关联的表，localField：主表要关联的字段，foreignField: 子表要关联的字段，as: "关联后的数据存放 字段（自定义）" )
+例如：
+db.order.aggregate([
+ {$lookup: {
+  from: "order_item",
+  localField: "order_id",
+  foreignField: "order_id",
+  as: "items"
+ }}
+])
+
+数据：
+order
+{ "_id" : ObjectId("5f851c7591b3b3ba94cfa0df"), "order_id" : "1", "uid" : 10, "trade_no" : "111", "all_price" : 100, "all_num" : 2 }
+{ "_id" : ObjectId("5f851c8f91b3b3ba94cfa0e0"), "order_id" : "2", "uid" : 7, "trade_no" : "222", "all_price" : 90, "all_num" : 2 }
+{ "_id" : ObjectId("5f851ca991b3b3ba94cfa0e1"), "order_id" : "3", "uid" : 9, "trade_no" : "333", "all_price" : 20, "all_num" : 6 }
+
+order_item
+{ "_id" : ObjectId("5f851cf691b3b3ba94cfa0e2"), "order_id" : "1", "title" : "商品鼠标1", "price" : 50, "num" : 1 }
+{ "_id" : ObjectId("5f851d0091b3b3ba94cfa0e3"), "order_id" : "1", "title" : "商品键盘2", "price" : 50, "num" : 1 }
+{ "_id" : ObjectId("5f851d2e91b3b3ba94cfa0e4"), "order_id" : "1", "title" : "商品键盘3", "price" : 0, "num" : 1 }
+{ "_id" : ObjectId("5f851e8691b3b3ba94cfa0e5"), "order_id" : "2", "title" : "牛奶", "price" : 50, "num" : 1 }
+{ "_id" : ObjectId("5f851f8991b3b3ba94cfa0e6"), "order_id" : "2", "title" : "酸奶", "price" : 40, "num" : 1 }
+{ "_id" : ObjectId("5f851fb191b3b3ba94cfa0e7"), "order_id" : "3", "title" : "矿泉水", "price" : 2, "num" : 5 }
+{ "_id" : ObjectId("5f851fbe91b3b3ba94cfa0e8"), "order_id" : "3", "title" : "毛巾", "price" : 10, "num" : 1 }
+
+
+
+
+
+
+
